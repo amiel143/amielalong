@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gym Reservation System</title>
+    <style>
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('bg.png'); /* Change this path */
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: 100px auto;
+            background-color: rgba(56, 56, 56, 0.8);
+            padding: 50px;
+            border: 1px solid rgb(51, 51, 51);
+            box-shadow: inset -5px -5px rgba(19, 19, 19, 0.5);
+            border-radius: 25px;
+        }
+        h2, h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background-color: #c4d14e;
+            color: rgb(41, 39, 39);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+        }
+        .dashboard {
+            display: none;
+            margin: 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            min-height: 100vh;
+        }
+        nav {
+            background-color: #333;
+            padding: 15px;
+            text-align: center;
+        }
+        nav a {
+            color: rgb(208, 231, 74);
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 18px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+        #home, #gym-equipment, #contact, #location {
+            background-image: url('bg.png');
+            background-repeat: no-repeat;
+            background-attachment: fixed;  
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: rgb(208, 231, 74);
+        }
+        .image-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .image-gallery img {
+            width: 500px;
+            height: 600px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .image-gallery img:hover {
+            transform: scale(1.1);
+        }
+        .image-description {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .image-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+.image-equipment {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            justify-items: center;
+            padding: 20px;
+}
+.image-equipment img {
+            width: 250px;
+            height: 250px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+}
+
+.image-equipment img:hover {
+    transform: scale(1.05);
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #050505;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+}
+
+.popup-content h3 {
+    margin-top: 0;
+}
+
+.close {
+    cursor: pointer;
+    font-size: 24px;
+    float: right;
+}
+
+
+    </style>
+</head>
+
+<body>
+    <!-- Login & Signup Forms -->
+    <div class="container" id="auth-container">
+        <h1><img src="c:/Users/Amiel/Downloads/31.png" alt="#" style="width: 100px; height: 100px;"></h1>
+        <h2 id="form-title">Login</h2>
+        <form id="loginForm" onsubmit="return login()">
+            <input type="email" id="loginEmail" class="box" placeholder="Email" required>
+            <input type="password" id="loginPassword" class="box" placeholder="Password" required>
+            <div class="error" id="loginError"></div>
+            <input type="submit" value="Login">
+            <p>Don't have an account? <a href="#" onclick="toggleForms()">Sign Up</a></p>
+        </form>
+
+        <form id="signupForm" onsubmit="return signup()" class="hidden">
+            <input type="text" id="signupName" class="box" placeholder="Full Name" required>
+            <input type="email" id="signupEmail" class="box" placeholder="Email" required>
+            <input type="password" id="signupPassword" class="box" placeholder="Password" required>
+            <div class="error" id="signupError"></div>
+            <input type="submit" value="Signup">
+            <p>Already have an account? <a href="#" onclick="toggleForms()">Login</a></p>
+        </form>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <nav>
+            <a href="#home" onclick="showSection('home')">Home</a>
+            <a href="#gym-equipment" onclick="showSection('gym-equipment')">Gym Equipment</a>
+            <a href="#contact" onclick="showSection('contact')">Contact</a>
+            <a href="#location" onclick="showSection('location')">Location</a>
+        </nav>
+
+        <div id="home" class="section">
+            <h2>Welcome to Libis Gym Reservation!</h2>
+            <div class="image-gallery">
+                <img src="g.jpg" alt="Image 1">
+                <img src="y.jpg" alt="Image 2">
+                <img src="m.jpg" alt="Image 3">
+            </div>
+            <div class="image-description">
+                <p style="color: rgb(208, 231, 74);">Explore our facilities and equipment</p>
+            </div>
+        </div>
+
+        <div id="gym-equipment" class="section">
+            <h2>Gym Equipment</h2>
+            <div class="image-equipment">
+                <img src="61T7+l4TdwL.jpg" alt="dumbbells" onclick="showEquipment('dumbbells', 'A dumbbell is an iron bar with weights attached to each side, sometimes they can be fixed, or other times you can adjust the weights to your liking.')" />
+                <img src="61jPzACdBFL.jpg" alt="barbell" onclick="showEquipment('barbell', 'One of the simplest pieces of equipment you can find in any gym is the barbell; it’s basically just an iron bar that comes in different forms. The Olympic barbell also has a similar purpose, but it tends to be made out of higher quality metal to easily handle heavy loads.')" />
+                <img src="296.jpg" alt="treadmill" onclick="showEquipment('treadmill', 'A treadmill is a great machine that can be used indoors. It’s a machine that simulates running and walking, it’s fantastic for cardio training. There are different types of treadmills available most are either electrical or manual..')" />
+                <img src="4.jpg" alt="shoulder press" onclick="showEquipment('shoulder press', 'Out of all the various shoulder machines, the shoulder press is the most popular one. It involves you sitting in an upright position using your shoulders by lifting a weighted press. Normally you will be lifting a flat bar or handles. The benefits of this machine are that it’s controlled, and you can easily lift weights above you without you having to worry about them falling on you, like when using a dumbbell or barbell.')" />
+                <img src="5.jpg" alt="stationary bikes" onclick="showEquipment('stationary bikes', 'stationary bike that mimics a road bike. The difference is, there is only one singular wheel. Using this machine, you sit on a padded seat and peddle, causing the spinning disc to move. The disc can have different levels of resistance added to it to simulate cycling in the real world.')" />
+                <img src="6.jpg" alt="Leg Press Machine" onclick="showEquipment('Leg Press Machine', 'The leg press machine allows you to add more definition to your legs without having someone to spot over you. This machine allows your back to rest against a padded seat closed to the floor and causes you to press your legs upwards against a slab that’s attached to weights. It’s a fantastic machine that can complement other activities like squats and lunges.')" />
+                <img src="7.jpg" alt="Kettlebells" onclick="showEquipment('Kettlebells', 'The kettlebell is an ancient piece of gym equipment! What we mean by this is that it’s over 300 years old and still provides excellent results! It may like an old fashioned kettle, but it’s really made of iron consisting of a ball and handle, which comes in different sizes.')" />
+                <img src="8.jpg" alt="Cable Crossover Machine" onclick="showEquipment('Cable Crossover Machine', 'A cable crossover machine involves a steel frame with two weight stacks on either side and cable pulleys. They allow you to perform a chest fly that causes your arms to cross over in the middle. This is just one example out of many exercises you can perform on the cable crossover.')" />
+            </div>
+            <div class="popup" id="popup">
+                <div class="popup-content">
+                    <span class="close" onclick="closePopup()">&times;</span>
+                    <h3 id="popup-title"></h3>
+                    <p id="popup-description"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="contact" class="section">
+            <h2>Contact</h2>
+            <p>Email: contact@libisgym.com</p>
+            <p>Join us on Facebook:</p>
+            <div style="text-align: center;">
+                <a href="https://www.facebook.com/groups/182797432282320" target="_blank">
+                    <img src="fb.PNG" alt="Facebook Group" style="width: 1500px; height: 800px; border-radius: 15px;">
+                </a>
+            </div>
+        </div>
+        
+        <div id="location" class="section">
+            <h2>Location</h2>
+            <p>Address: Baranggay 16, Libis Espina, Caloocan City</p>
+            <p> 
+                <a href="https://www.google.com/maps/@14.6503685,120.9701635,3a,75y,132.94h,94.69t/data=!3m7!1e1!3m5!1sRECnoCzHYNoHGZ7sZJtt9Q!2e0!5s20240301T000000!7i16384!8i8192?entry=ttu&g_ep=EgoyMDI0MDkxNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" style="text-align: center;"><img src="l.PNG" alt="#" style="width: 1500px; height: 800px; border-radius: 15px;"></a>
+            </p>
+            <p> Find us on Google Maps:</p>
+        </div>
+    </div>
+
+    <script>
+        const users = [];
+
+        function showEquipment(title, description) {
+    document.getElementById('popup-title').textContent = title;
+    document.getElementById('popup-description').textContent = description;
+    document.getElementById('popup').style.display = 'flex';
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.innerHTML = '';
+
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                proceedToDashboard();
+            } else {
+                errorDiv.innerHTML = 'Invalid email or password.';
+            }
+            return false;
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const errorDiv = document.getElementById('signupError');
+            errorDiv.innerHTML = '';
+
+            if (users.find(u => u.email === email)) {
+                errorDiv.innerHTML = 'Email already in use.';
+                return false;
+            }
+
+            users.push({ name, email, password });
+            alert('Signup successful! Please login.');
+            toggleForms();
+            return false;
+        }
+
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const formTitle = document.getElementById('form-title');
+            
+            if (loginForm.classList.contains('hidden')) {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                formTitle.textContent = 'Login';
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                formTitle.textContent = 'Signup';
+            }
+        }
+
+        function proceedToDashboard() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
